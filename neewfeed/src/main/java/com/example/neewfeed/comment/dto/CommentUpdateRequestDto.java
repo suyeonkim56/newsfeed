@@ -3,6 +3,6 @@ package com.example.neewfeed.comment.dto;
 import lombok.Getter;
 
 @Getter
-public class CommentCreateRequestDto {
-    private String content;
+public class CommentUpdateRequestDto {
+    private String newContent;
 }
