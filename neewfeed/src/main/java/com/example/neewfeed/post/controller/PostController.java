@@ -9,13 +9,12 @@ import com.example.neewfeed.post.dto.PostResponseDto;
 import com.example.neewfeed.post.dto.PostUpdateRequestDto;
 import com.example.neewfeed.post.service.PostService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,18 +35,42 @@ public class PostController {
         return new ResponseEntity<>(dto, HttpStatus.CREATED);
     }
 
-    //게시물 전체 조회
+    //본인 포함 팔로워 게시물 전체 조회
     @GetMapping
-    public ResponseEntity<List<PostResponseDto>> findAll(
+    public ResponseEntity<List<PostResponseDto>> findFollowedAll(
+            @Auth AuthUser authUser,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        List<PostResponseDto> findList = postService.findAll(page, size);
+        List<PostResponseDto> findList = postService.findFollowedPosts(authUser, page, size);
         return new ResponseEntity<>(findList, HttpStatus.OK);
     }
 
+    //(본인 포함 팔로워)게시물 수정일자 기준 정렬
+    @GetMapping("/sorted")
+    public ResponseEntity<List<PostResponseDto>> findOrderByUpdatedAt(
+            @Auth AuthUser authUser,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        List<PostResponseDto> findList = postService.findFollowedPostsOrderByUpdatedAt(authUser, page, size);
+        return new ResponseEntity<>(findList, HttpStatus.OK);
+    }
+
+    //게시물 기간별 조회
+    @GetMapping("/period")
+    public ResponseEntity<List<PostResponseDto>> findOrderByDate(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) LocalDateTime startDate,
+            @RequestParam(required = false) LocalDateTime endDate
+    ) {
+        List<PostResponseDto> findList = postService.findOrderByDate(page, size, startDate, endDate);
+        return new ResponseEntity<>(findList,HttpStatus.OK);
+    }
+
     //게시물 단일 조회
-    @GetMapping("/{postId}")
+    @GetMapping("/check/{postId}")
     public ResponseEntity<PostResponseDto> findById(
             @PathVariable Long postId
     ) {
@@ -72,8 +95,8 @@ public class PostController {
     public ResponseEntity<Map<String, String>> deletePost(
             @PathVariable Long postId,
             @Auth AuthUser authUser
-    ){
-        postService.deletePost(authUser,postId);
+    ) {
+        postService.deletePost(authUser, postId);
 
         Map<String, String> response = new HashMap<>();
         response.put("message", "게시물이 성공적으로 삭제되었습니다.");

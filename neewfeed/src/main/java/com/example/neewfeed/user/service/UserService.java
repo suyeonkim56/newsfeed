@@ -28,13 +28,17 @@ public class UserService {
                 .orElseThrow(() -> new IllegalStateException("존재하지 않는 유저입니다."));
 
         //본인인 경우
-        if(user.getId().equals(findUser.getId()))
-        {
-            return new UserPrivateResponseDto(findUser.getId(), findUser.getEmail(), findUser.getName());
+        if (user.getId().equals(findUser.getId())) {
+            return new UserPrivateResponseDto(
+                    findUser.getId(),
+                    findUser.getEmail(),
+                    findUser.getName(),
+                    findUser.getCreatedAt(),
+                    findUser.getUpdatedAt()
+            );
         }
         //타인인 경우
-        else
-        {
+        else {
             return new UserPublicResponseDto(findUser.getId(), findUser.getEmail());
         }
     }
@@ -43,27 +47,30 @@ public class UserService {
     @Transactional
     public UserPrivateResponseDto updateName(AuthUser authUser, UserNameUpdateRequestDto requestDto) {
         User findUser = userRepository.findById(authUser.getId())
-                .orElseThrow(()-> new IllegalStateException("존재하지 않는 유저입니다."));
+                .orElseThrow(() -> new IllegalStateException("존재하지 않는 유저입니다."));
 
-        if(findUser.getName().equals(requestDto.getNewname()))
-        {
+        if (findUser.getName().equals(requestDto.getNewname())) {
             throw new IllegalStateException("기존과 동일한 이름으로 바꿀 수 없습니다.");
         }
         findUser.updateName(requestDto.getNewname());
 
-        return new UserPrivateResponseDto(findUser.getId(), findUser.getEmail(), findUser.getName());
+        return new UserPrivateResponseDto(
+                findUser.getId(),
+                findUser.getEmail(),
+                findUser.getName(),
+                findUser.getCreatedAt(),
+                findUser.getUpdatedAt()
+        );
     }
 
     public void updatePassword(AuthUser authUser, UserPasswordUpdateRequestDto requestDto) {
         User findUser = userRepository.findById(authUser.getId())
-                .orElseThrow(()->new IllegalStateException("존재하지 않는 유저입니다."));
+                .orElseThrow(() -> new IllegalStateException("존재하지 않는 유저입니다."));
 
-        if(passwordEncoder.matches(requestDto.getNewPassword(), findUser.getPassword()))
-        {
+        if (passwordEncoder.matches(requestDto.getNewPassword(), findUser.getPassword())) {
             throw new RuntimeException("기존과 동일한 비밀번호로 바꿀 수 없습니다.");
         }
-        if(!passwordEncoder.matches(requestDto.getOldPassword(), findUser.getPassword()))
-        {
+        if (!passwordEncoder.matches(requestDto.getOldPassword(), findUser.getPassword())) {
             throw new RuntimeException("비밀번호가 일치하지 않습니다.");
         }
 

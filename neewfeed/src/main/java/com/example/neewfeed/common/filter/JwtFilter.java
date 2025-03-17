@@ -18,6 +18,15 @@ import java.io.IOException;
 @Slf4j
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
+    // 인증 없이 접근 가능한 API 경로
+    private static final String[] WHITE_LIST = {
+            "/",
+            "/auth/signup",
+            "/auth/signin",
+            "/users/check/*",
+            "/posts/check/*"
+    };
+
     private final JwtUtil jwtUtil;
 
     @Override
@@ -25,7 +34,8 @@ public class JwtFilter extends OncePerRequestFilter {
 
         String url = httpRequest.getRequestURI();
 
-        if (url.startsWith("/auth")) {
+        // 화이트리스트에 있는 경우 필터 통과
+        if (isWhiteList(url)) {
             chain.doFilter(httpRequest, httpResponse);
             return;
         }
@@ -65,5 +75,15 @@ public class JwtFilter extends OncePerRequestFilter {
             log.error("Invalid JWT token, 유효하지 않는 JWT 토큰 입니다.", e);
             httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "유효하지 않는 JWT 토큰입니다.");
         }
+    }
+
+    // 화이트 리스트에 포함된 경로인지 확인
+    private boolean isWhiteList(String requestURI) {
+        for (String pattern : WHITE_LIST) {
+            if (requestURI.startsWith(pattern)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

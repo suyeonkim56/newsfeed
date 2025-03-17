@@ -25,7 +25,7 @@ public class UserController {
     private final UserService userService;
 
     //프로필 조회
-    @GetMapping("/{userId}")
+    @GetMapping("/check/{userId}")
     public ResponseEntity<UserResponseDto> findById(
             @Auth AuthUser authUser,
             @PathVariable Long userId){

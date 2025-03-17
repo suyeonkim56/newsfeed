@@ -1,6 +1,7 @@
 package com.example.neewfeed.post.service;
 
 import com.example.neewfeed.auth.dto.AuthUser;
+import com.example.neewfeed.follow.repository.FollowingRepository;
 import com.example.neewfeed.post.dto.PostCreateRequestDto;
 import com.example.neewfeed.post.dto.PostCreateResponseDto;
 import com.example.neewfeed.post.dto.PostResponseDto;
@@ -17,14 +18,16 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final FollowingRepository followingRepository;
 
     //게시물 생성
     @Transactional
@@ -36,36 +39,86 @@ public class PostService {
         return new PostCreateResponseDto(
                 savedpost.getId(),
                 savedpost.getContents(),
-                savedpost.getCreatedAt()
+                savedpost.getCreatedAt(),
+                savedpost.getUpdatedAt()
         );
     }
 
     //게시물 전체 조회
     @Transactional(readOnly = true)
-    public List<PostResponseDto> findAll(int page, int size) {
-        // 클라이언트에서 1부터 전달된 페이지 번호를 0 기반으로 조정
-        int adjustedPage = (page > 0) ? page - 1 : 0;
+    public List<PostResponseDto> findFollowedPosts(AuthUser authUser, int page, int size) {
+        // 1. 페이지 인덱스 조정
+        int adjustedPage = Math.max(page - 1, 0);
         PageRequest pageable = PageRequest.of(adjustedPage, size, Sort.by("createdAt").descending());
-        // 1. Post page 조회
-        Page<Post> posts = postRepository.findAll(pageable);
-        List<PostResponseDto> dtos = new ArrayList<>();
 
-        for (Post post : posts) {
-            dtos.add(new PostResponseDto(
-                    post.getId(),
-                    post.getContents(),
-                    post.getLikeCount(),
-                    post.getCreatedAt()
-            ));
+        // 2. 팔로우 리스트 가져오기 + 본인 추가
+        List<User> followers = followingRepository.findbyfromId(authUser.getId());
+        User currentUser = userRepository.findById(authUser.getId())
+                .orElseThrow(() -> new IllegalStateException("존재하지 않는 사용자입니다."));
+
+        if (!followers.contains(currentUser)) {
+            followers.add(currentUser);
         }
-        return dtos;
+
+        // 3. 팔로우한 사람들의 게시물 페이징 조회
+        Page<Post> posts = postRepository.findByFollowers(followers, pageable);
+
+        // 4. DTO 변환
+        return posts.stream()
+                .map(post -> new PostResponseDto(
+                        post.getId(),
+                        post.getContents(),
+                        post.getLikeCount(),
+                        post.getCreatedAt(),
+                        post.getUpdatedAt()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    //수정일자 기준 정렬
+    @Transactional(readOnly = true)
+    public List<PostResponseDto> findFollowedPostsOrderByUpdatedAt(AuthUser authUser, int page, int size) {
+        // 1. 페이지 인덱스 조정
+        int adjustedPage = Math.max(page - 1, 0);
+        PageRequest pageable = PageRequest.of(adjustedPage, size, Sort.by("updatedAt").descending());
+
+        // 2. 팔로우 리스트 가져오기 + 본인 추가
+        List<User> followers = followingRepository.findbyfromId(authUser.getId());
+        User currentUser = userRepository.findById(authUser.getId())
+                .orElseThrow(() -> new IllegalStateException("존재하지 않는 사용자입니다."));
+
+        if (!followers.contains(currentUser)) {
+            followers.add(currentUser);
+        }
+
+        // 3. 팔로우한 사람들의 게시물 페이징 조회
+        Page<Post> posts = postRepository.findByFollowers(followers, pageable);
+
+        // 4. DTO 변환
+        return posts.stream()
+                .map(post -> new PostResponseDto(
+                        post.getId(),
+                        post.getContents(),
+                        post.getLikeCount(),
+                        post.getCreatedAt(),
+                        post.getUpdatedAt()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    //게시물 기간별 조회
+    public List<PostResponseDto> findOrderByDate(int page, int size, LocalDateTime startDate, LocalDateTime endDate) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Post> posts;
+        posts = postRepository.findPostsBetweenDates(pageable,startDate,endDate);
+        return null;
     }
 
     //게시물 단일 조회
     @Transactional(readOnly = true)
     public PostResponseDto findById(Long postId) {
         Post findpost = postRepository.findById(postId).orElseThrow(() -> new IllegalStateException("존재하지 않는 게시물입니다."));
-        return new PostResponseDto(findpost.getId(), findpost.getContents(), findpost.getLikeCount(), findpost.getCreatedAt());
+        return new PostResponseDto(findpost.getId(), findpost.getContents(), findpost.getLikeCount(), findpost.getCreatedAt(), findpost.getUpdatedAt());
     }
 
 
@@ -77,16 +130,15 @@ public class PostService {
         User user = userRepository.findByEmail(authUser.getEmail())
                 .orElseThrow(() -> new IllegalStateException("존재하지 않는 유저입니다."));
 
-        if(!findpost.getUser().equals(user)){
+        if (!findpost.getUser().equals(user)) {
             throw new IllegalStateException("본인의 게시물만 수정할 수 있습니다.");
         }
-        if(findpost.getContents().equals(requestDto.getNewcontents()))
-        {
+        if (findpost.getContents().equals(requestDto.getNewcontents())) {
             throw new IllegalStateException("기존과 동일한 내용으로 수정할 수 없습니다.");
         }
         findpost.updateContents(requestDto.getNewcontents());
 
-        return new PostResponseDto(findpost.getId(),findpost.getContents(),findpost.getLikeCount(),findpost.getCreatedAt());
+        return new PostResponseDto(findpost.getId(), findpost.getContents(), findpost.getLikeCount(), findpost.getCreatedAt(), findpost.getUpdatedAt());
     }
 
     //게시물 삭제
@@ -97,10 +149,13 @@ public class PostService {
         User user = userRepository.findByEmail(authUser.getEmail())
                 .orElseThrow(() -> new IllegalStateException("존재하지 않는 유저입니다."));
 
-        if(!findpost.getUser().equals(user)){
+        if (!findpost.getUser().equals(user)) {
             throw new IllegalStateException("본인의 게시물만 삭제할 수 있습니다.");
         }
 
         postRepository.delete(findpost);
     }
+
+
+
 }
