@@ -22,7 +22,7 @@ public class UserService {
 
 
     //유저 단독 조회
-    @Transactional
+    @Transactional(readOnly = true)
     public UserResponseDto findById(AuthUser user, Long userId) {
         User findUser = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalStateException("존재하지 않는 유저입니다."));
@@ -63,6 +63,8 @@ public class UserService {
         );
     }
 
+    //비밀번호 변경
+    @Transactional
     public void updatePassword(AuthUser authUser, UserPasswordUpdateRequestDto requestDto) {
         User findUser = userRepository.findById(authUser.getId())
                 .orElseThrow(() -> new IllegalStateException("존재하지 않는 유저입니다."));

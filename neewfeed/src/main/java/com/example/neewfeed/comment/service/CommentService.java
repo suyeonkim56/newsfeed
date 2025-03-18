@@ -55,6 +55,7 @@ public class CommentService {
     }
 
     //댓글 수정
+    @Transactional
     public CommentResponseDto updateComment(AuthUser authUser, CommentUpdateRequestDto requestDto, Long commentId) {
         Comment findComment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new IllegalStateException("존재하지 않는 댓글입니다."));
@@ -77,6 +78,7 @@ public class CommentService {
     }
 
     //댓글 삭제
+    @Transactional
     public void deleteComment(AuthUser authUser, Long commentId) {
         Comment findComment = commentRepository.findById(commentId)
                 .orElseThrow(()->new IllegalStateException("존재하지 않는 댓글입니다."));

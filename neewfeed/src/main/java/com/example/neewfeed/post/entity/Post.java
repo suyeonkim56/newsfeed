@@ -13,8 +13,8 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor
 @Entity
-@Table(name="post")
-public class Post{
+@Table(name = "post")
+public class Post {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -39,8 +39,7 @@ public class Post{
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime updatedAt;
 
-    public Post(String contents, User user)
-    {
+    public Post(String contents, User user) {
         this.contents = contents;
         this.user = user;
         likeCount = 0;
@@ -48,8 +47,20 @@ public class Post{
         this.updatedAt = LocalDateTime.now();
     }
 
-    public void updateContents(String newcontents) {
-        this.contents = newcontents;
+    public void updateContents(String newContents) {
+        this.contents = newContents;
         this.updatedAt = LocalDateTime.now();
+    }
+
+    public void addLike() {
+        likeCount++;
+        updatedAt = LocalDateTime.now();
+    }
+
+    public void minusLike() {
+        if (likeCount > 0) {
+            likeCount--;
+        }
+        updatedAt = LocalDateTime.now();
     }
 }

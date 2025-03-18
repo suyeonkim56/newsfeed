@@ -59,4 +59,17 @@ public class Comment {
         this.content = newContent;
         updatedAt = LocalDateTime.now();
     }
+
+    public void addLike() {
+        updatedAt = LocalDateTime.now();
+        likeCount++;
+    }
+
+    public void minusLike() {
+        updatedAt = LocalDateTime.now();
+        if(likeCount > 0)
+        {
+            likeCount--;
+        }
+    }
 }
