@@ -1,5 +1,6 @@
 package com.example.neewfeed.comment.service;
 
+import com.example.neewfeed.auth.dto.AuthUser;
 import com.example.neewfeed.comment.dto.CommentCreateRequestDto;
 import com.example.neewfeed.comment.dto.CommentCreateResponseDto;
 import com.example.neewfeed.comment.dto.CommentResponseDto;
@@ -26,8 +27,8 @@ public class CommentService {
 
     //댓글 생성
     @Transactional
-    public CommentCreateResponseDto createComment(Long userId, CommentCreateRequestDto requestDto, Long postId) {
-        User findUser = userRepository.findById(userId)
+    public CommentCreateResponseDto createComment(AuthUser authUser, CommentCreateRequestDto requestDto, Long postId) {
+        User findUser = userRepository.findById(authUser.getId())
                 .orElseThrow(() -> new IllegalStateException("존재하지 않는 유저입니다."));
         Post findPost = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalStateException("존재하지 않는 게시물입니다."));
@@ -55,11 +56,11 @@ public class CommentService {
 
     //댓글 수정
     @Transactional
-    public CommentResponseDto updateComment(Long userId, CommentUpdateRequestDto requestDto, Long commentId) {
+    public CommentResponseDto updateComment(AuthUser authUser, CommentUpdateRequestDto requestDto, Long commentId) {
         Comment findComment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new IllegalStateException("존재하지 않는 댓글입니다."));
 
-        if (!findComment.getUser().getId().equals(userId)) {
+        if (!findComment.getUser().getId().equals(authUser.getId())) {
             throw new IllegalStateException("본인의 댓글만 수정할 수 있습니다.");
         }
 
@@ -78,11 +79,11 @@ public class CommentService {
 
     //댓글 삭제
     @Transactional
-    public void deleteComment(Long userId, Long commentId) {
+    public void deleteComment(AuthUser authUser, Long commentId) {
         Comment findComment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new IllegalStateException("존재하지 않는 댓글입니다."));
+                .orElseThrow(()->new IllegalStateException("존재하지 않는 댓글입니다."));
 
-        if (!findComment.getUser().getId().equals(userId)) {
+        if (!findComment.getUser().getId().equals(authUser.getId())) {
             throw new IllegalStateException("본인의 댓글만 삭제할 수 있습니다.");
         }
         commentRepository.delete(findComment);

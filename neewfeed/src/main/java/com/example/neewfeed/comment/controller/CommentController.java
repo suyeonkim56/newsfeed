@@ -1,12 +1,13 @@
 package com.example.neewfeed.comment.controller;
 
 
+import com.example.neewfeed.auth.annotation.Auth;
+import com.example.neewfeed.auth.dto.AuthUser;
 import com.example.neewfeed.comment.dto.CommentCreateRequestDto;
 import com.example.neewfeed.comment.dto.CommentCreateResponseDto;
 import com.example.neewfeed.comment.dto.CommentResponseDto;
 import com.example.neewfeed.comment.dto.CommentUpdateRequestDto;
 import com.example.neewfeed.comment.service.CommentService;
-import com.example.neewfeed.common.config.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,14 +27,11 @@ public class CommentController {
     //댓글 작성
     @PostMapping
     public ResponseEntity<CommentCreateResponseDto> createComment(
-            @RequestHeader(name = "Authorization") String authorization,
+            @Auth AuthUser authUser,
             @RequestBody CommentCreateRequestDto requestDto,
             @PathVariable Long postId
             ){
-        // JWT에서 userId 추출
-        Long userId = JwtUtil.extractUserId(authorization);
-
-        CommentCreateResponseDto dto = commentService.createComment(userId, requestDto, postId);
+        CommentCreateResponseDto dto = commentService.createComment(authUser, requestDto, postId);
         return new ResponseEntity<>(dto, HttpStatus.CREATED);
     }
     //댓글 전체조회
@@ -46,13 +44,11 @@ public class CommentController {
     //댓글 수정
     @PutMapping("/{commentId}")
     public ResponseEntity<CommentResponseDto> updateComment(
-            @RequestHeader(name = "Authorization") String authorization,
+            @Auth AuthUser authUser,
             @RequestBody CommentUpdateRequestDto requestDto,
             @PathVariable Long commentId
             ){
-        // JWT에서 userId 추출
-        Long userId = JwtUtil.extractUserId(authorization);
-        CommentResponseDto dto = commentService.updateComment(userId,requestDto,commentId);
+        CommentResponseDto dto = commentService.updateComment(authUser,requestDto,commentId);
 
         return new ResponseEntity<>(dto,HttpStatus.OK);
     }
@@ -60,12 +56,10 @@ public class CommentController {
     //댓글 삭제
     @DeleteMapping("/{commentId}")
     public ResponseEntity<Map<String, String>> deleteComment(
-            @RequestHeader(name = "Authorization") String authorization,
+            @Auth AuthUser authUser,
             @PathVariable Long commentId
     ){
-        // JWT에서 userId 추출
-        Long userId = JwtUtil.extractUserId(authorization);
-        commentService.deleteComment(userId,commentId);
+        commentService.deleteComment(authUser,commentId);
 
         Map<String, String> response = new HashMap<>();
         response.put("message", "댓글이 성공적으로 삭제되었습니다.");

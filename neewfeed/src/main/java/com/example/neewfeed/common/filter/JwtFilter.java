@@ -1,17 +1,23 @@
 package com.example.neewfeed.common.filter;
 
 import com.example.neewfeed.common.config.JwtUtil;
-import jakarta.servlet.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
 @Slf4j
 @RequiredArgsConstructor
-public class JwtFilter implements Filter {
+public class JwtFilter extends OncePerRequestFilter {
     // 인증 없이 접근 가능한 API 경로
     private static final String[] WHITE_LIST = {
             "/",
@@ -24,33 +30,51 @@ public class JwtFilter implements Filter {
     private final JwtUtil jwtUtil;
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
-        HttpServletResponse httpResponse = (HttpServletResponse) response;
+    protected void doFilterInternal(HttpServletRequest httpRequest, HttpServletResponse httpResponse, FilterChain chain) throws ServletException, IOException {
 
-        String requestURI = httpRequest.getRequestURI();
+        String url = httpRequest.getRequestURI();
 
         // 화이트리스트에 있는 경우 필터 통과
-        if (isWhiteList(requestURI)) {
-            chain.doFilter(request, response);
+        if (isWhiteList(url)) {
+            chain.doFilter(httpRequest, httpResponse);
             return;
         }
 
-        // Authorization 헤더에서 JWT 가져오기
-        String authorization = httpRequest.getHeader("Authorization");
-        // JWT가 없거나 형식이 틀리면 404 응답
-        if (authorization == null || !authorization.startsWith("Bearer ")) {
-            httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        String bearerJwt = httpRequest.getHeader("Authorization");
+
+        if (bearerJwt == null) {
+            // 토큰이 없는 경우 400을 반환합니다.
+            httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "JWT 토큰이 필요합니다.");
             return;
         }
-        // 토큰에서 "Bearer" 부분 제거 후 JWT 추출
-        String token = authorization.substring(7);
-        if (!JwtUtil.validateToken(token)) {
-            httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return;
+
+        String jwt = jwtUtil.substringToken(bearerJwt);
+
+        try {
+            // JWT 유효성 검사와 claims 추출
+            Claims claims = jwtUtil.extractClaims(jwt);
+            if (claims == null) {
+                httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "잘못된 JWT 토큰입니다.");
+                return;
+            }
+
+            httpRequest.setAttribute("userId", Long.parseLong(claims.getSubject()));
+            httpRequest.setAttribute("email", claims.get("email"));
+
+            chain.doFilter(httpRequest, httpResponse);
+        } catch (SecurityException | MalformedJwtException e) {
+            log.error("Invalid JWT signature, 유효하지 않는 JWT 서명 입니다.", e);
+            httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "유효하지 않는 JWT 서명입니다.");
+        } catch (ExpiredJwtException e) {
+            log.error("Expired JWT token, 만료된 JWT token 입니다.", e);
+            httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "만료된 JWT 토큰입니다.");
+        } catch (UnsupportedJwtException e) {
+            log.error("Unsupported JWT token, 지원되지 않는 JWT 토큰 입니다.", e);
+            httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "지원되지 않는 JWT 토큰입니다.");
+        } catch (Exception e) {
+            log.error("Invalid JWT token, 유효하지 않는 JWT 토큰 입니다.", e);
+            httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "유효하지 않는 JWT 토큰입니다.");
         }
-        // JWT 유효하면 필터 계속 진행
-        chain.doFilter(request, response);
     }
 
     // 화이트 리스트에 포함된 경로인지 확인

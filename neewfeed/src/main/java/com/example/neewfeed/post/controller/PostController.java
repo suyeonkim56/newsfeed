@@ -1,7 +1,8 @@
 package com.example.neewfeed.post.controller;
 
 
-import com.example.neewfeed.common.config.JwtUtil;
+import com.example.neewfeed.auth.annotation.Auth;
+import com.example.neewfeed.auth.dto.AuthUser;
 import com.example.neewfeed.post.dto.PostCreateRequestDto;
 import com.example.neewfeed.post.dto.PostCreateResponseDto;
 import com.example.neewfeed.post.dto.PostResponseDto;
@@ -27,41 +28,32 @@ public class PostController {
     //게시물 생성
     @PostMapping
     public ResponseEntity<PostCreateResponseDto> createPost(
-            @RequestHeader(name = "Authorization") String authorization,
+            @Auth AuthUser authUser,
             @RequestBody PostCreateRequestDto requestDto
     ) {
-        // JWT에서 userId 추출
-        Long userId = JwtUtil.extractUserId(authorization);
-
-        PostCreateResponseDto dto = postService.createPost(userId, requestDto);
+        PostCreateResponseDto dto = postService.createPost(authUser, requestDto);
         return new ResponseEntity<>(dto, HttpStatus.CREATED);
     }
 
     //본인 포함 팔로워 게시물 전체 조회
     @GetMapping
     public ResponseEntity<List<PostResponseDto>> findFollowedAll(
-            @RequestHeader(name = "Authorization") String authorization,
+            @Auth AuthUser authUser,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        // JWT에서 userId 추출
-        Long userId = JwtUtil.extractUserId(authorization);
-
-        List<PostResponseDto> findList = postService.findFollowedPosts(userId, page, size);
+        List<PostResponseDto> findList = postService.findFollowedPosts(authUser, page, size);
         return new ResponseEntity<>(findList, HttpStatus.OK);
     }
 
     //(본인 포함 팔로워)게시물 수정일자 기준 정렬
     @GetMapping("/sorted")
     public ResponseEntity<List<PostResponseDto>> findOrderByUpdatedAt(
-            @RequestHeader(name = "Authorization") String authorization,
+            @Auth AuthUser authUser,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        // JWT에서 userId 추출
-        Long userId = JwtUtil.extractUserId(authorization);
-
-        List<PostResponseDto> findList = postService.findFollowedPostsOrderByUpdatedAt(userId, page, size);
+        List<PostResponseDto> findList = postService.findFollowedPostsOrderByUpdatedAt(authUser, page, size);
         return new ResponseEntity<>(findList, HttpStatus.OK);
     }
 
@@ -89,14 +81,11 @@ public class PostController {
     //게시물 수정
     @PutMapping("/{postId}")
     public ResponseEntity<PostResponseDto> updatePost(
-            @RequestHeader(name = "Authorization") String authorization,
             @PathVariable Long postId,
+            @Auth AuthUser authUser,
             @RequestBody PostUpdateRequestDto requestDto
     ) {
-        // JWT에서 userId 추출
-        Long userId = JwtUtil.extractUserId(authorization);
-
-        PostResponseDto dto = postService.updatePost(postId, userId, requestDto);
+        PostResponseDto dto = postService.updatePost(postId, authUser, requestDto);
 
         return new ResponseEntity<>(dto, HttpStatus.OK);
     }
@@ -104,13 +93,10 @@ public class PostController {
     //게시물 삭제
     @DeleteMapping("/{postId}")
     public ResponseEntity<Map<String, String>> deletePost(
-            @RequestHeader(name = "Authorization") String authorization,
-            @PathVariable Long postId
+            @PathVariable Long postId,
+            @Auth AuthUser authUser
     ) {
-        // JWT에서 userId 추출
-        Long userId = JwtUtil.extractUserId(authorization);
-
-        postService.deletePost(userId, postId);
+        postService.deletePost(authUser, postId);
 
         Map<String, String> response = new HashMap<>();
         response.put("message", "게시물이 성공적으로 삭제되었습니다.");
