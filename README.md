@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/b1d6fbcd-b835-45b5-8280-004aca4ea8a3)# newsfeed
+# newsfeed
 
 ### API
 
@@ -65,9 +65,6 @@
 
 #### 댓글 삭제
 ![image](https://github.com/user-attachments/assets/ee9e24fd-9035-469b-9e0b-f48f971f953f)
-
-##### 삭제 후 전체조회
-![image](https://github.com/user-attachments/assets/3b2efc49-6b74-4eba-8e5d-91237a8584d1)
 
 #### 게시물 좋아요 생성
 ![image](https://github.com/user-attachments/assets/4c9dba76-e882-411a-9e93-f35324a26a43)
