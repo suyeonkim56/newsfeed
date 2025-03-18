@@ -11,8 +11,9 @@ import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDateTime;
 
-@Table(name = "comment")
+
 @Entity
+@Table(name = "comment")
 @Getter
 @NoArgsConstructor
 public class Comment {
@@ -45,8 +46,7 @@ public class Comment {
     @JoinColumn(name = "post_id")
     Post post;
 
-    public Comment(String content, User user, Post post)
-    {
+    public Comment(String content, User user, Post post) {
         this.content = content;
         likeCount = 0;
         this.user = user;
@@ -67,8 +67,7 @@ public class Comment {
 
     public void minusLike() {
         updatedAt = LocalDateTime.now();
-        if(likeCount > 0)
-        {
+        if (likeCount > 0) {
             likeCount--;
         }
     }

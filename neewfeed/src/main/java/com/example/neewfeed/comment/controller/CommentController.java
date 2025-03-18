@@ -34,6 +34,7 @@ public class CommentController {
         CommentCreateResponseDto dto = commentService.createComment(authUser, requestDto, postId);
         return new ResponseEntity<>(dto, HttpStatus.CREATED);
     }
+
     //댓글 전체조회
     @GetMapping
     public ResponseEntity<List<CommentResponseDto>> findAll(){

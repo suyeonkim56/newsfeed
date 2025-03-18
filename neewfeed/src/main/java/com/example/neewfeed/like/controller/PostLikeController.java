@@ -38,7 +38,7 @@ public class PostLikeController {
     ){
         postLikeService.deletePostLike(authUser,postId,likeId);
         Map<String, String> response = new HashMap<>();
-        response.put("message", "게시물 좋아요 삭 성공.");
+        response.put("message", "게시물 좋아요 삭제 성공.");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

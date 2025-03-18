@@ -70,7 +70,7 @@ public class PostController {
     }
 
     //게시물 단일 조회
-    @GetMapping("/check/{postId}")
+    @GetMapping("/{postId}")
     public ResponseEntity<PostResponseDto> findById(
             @PathVariable Long postId
     ) {

@@ -10,6 +10,7 @@ import com.example.neewfeed.user.dto.UserResponseDto;
 import com.example.neewfeed.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,9 +18,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/user")
+@RequestMapping("/users")
 public class UserController {
 
     private final UserService userService;
@@ -28,7 +30,7 @@ public class UserController {
     @GetMapping("/check/{userId}")
     public ResponseEntity<UserResponseDto> findById(
             @Auth AuthUser authUser,
-            @PathVariable Long userId){
+            @PathVariable Long userId) {
         UserResponseDto dto = userService.findById(authUser, userId);
         return new ResponseEntity<>(dto, HttpStatus.OK);
     }
@@ -39,7 +41,7 @@ public class UserController {
     public ResponseEntity<UserPrivateResponseDto> updateName(
             @Auth AuthUser authUser,
             @RequestBody UserNameUpdateRequestDto requestDto
-    ){
+    ) {
         UserPrivateResponseDto dto = userService.updateName(authUser, requestDto);
 
         return new ResponseEntity<>(dto, HttpStatus.OK);
@@ -50,7 +52,7 @@ public class UserController {
     public ResponseEntity<Map<String, String>> updatePassword(
             @Auth AuthUser authUser,
             @Valid @RequestBody UserPasswordUpdateRequestDto requestDto
-            ){
+    ) {
         userService.updatePassword(authUser, requestDto);
         Map<String, String> response = new HashMap<>();
         response.put("message", "비밀번호가 성공적으로 변경되었습니다.");

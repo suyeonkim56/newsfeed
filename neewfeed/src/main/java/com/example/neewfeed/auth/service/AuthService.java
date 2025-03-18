@@ -11,9 +11,11 @@ import com.example.neewfeed.user.entity.User;
 import com.example.neewfeed.user.repository.UserRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class AuthService {
@@ -48,7 +50,7 @@ public class AuthService {
         }
 
         // 비밀번호가 일치한 경우
-        String bearerJwt = jwtUtil.createToken(user.getId(), user.getEmail());
+        String bearerJwt = jwtUtil.createToken(user.getId());
         return new UserSigninResponseDto(bearerJwt);
     }
 }

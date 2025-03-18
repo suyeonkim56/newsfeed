@@ -68,7 +68,7 @@ public class UserService {
     public void updatePassword(AuthUser authUser, UserPasswordUpdateRequestDto requestDto) {
         User findUser = userRepository.findById(authUser.getId())
                 .orElseThrow(() -> new IllegalStateException("존재하지 않는 유저입니다."));
-
+        System.out.println(findUser.getId());
         if (passwordEncoder.matches(requestDto.getNewPassword(), findUser.getPassword())) {
             throw new RuntimeException("기존과 동일한 비밀번호로 바꿀 수 없습니다.");
         }

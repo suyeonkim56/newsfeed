@@ -10,4 +10,6 @@ import java.util.List;
 @Repository
 public interface FollowingRepository extends JpaRepository<Following, Long> {
     List<User> findByFromId(Long id);
+
+    boolean existsByFromId(Long id);
 }

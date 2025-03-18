@@ -24,11 +24,18 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             Pageable pageable
     );
 
-    //수정일을 기준으로 일정 찾기
-    @Query("select p from Post p where p.updatedAt >= :startDate And p.updatedAt<= :endDate order by p.updatedAt desc")
+    //기간별 검색
+    @Query("select p from Post p where p.updatedAt >= :startDate And p.updatedAt<= :endDate order by p.createdAt desc")
     Page<Post> findPostsBetweenDates(
             Pageable pageable,
             @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate
+    );
+
+    //수정일을 기준으로 일정 찾기
+    @Query("SELECT p FROM Post p WHERE p.user IN :followers order by p.updatedAt desc ")
+    Page<Post> findByFollowersOrderByUpdatedAt(
+            List<User> followers,
+            PageRequest pageable
     );
 }

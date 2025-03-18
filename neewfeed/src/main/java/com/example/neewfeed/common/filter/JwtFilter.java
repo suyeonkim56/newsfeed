@@ -5,41 +5,43 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
+import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
 @Slf4j
 @RequiredArgsConstructor
-public class JwtFilter extends OncePerRequestFilter {
+public class JwtFilter implements Filter {
     // 인증 없이 접근 가능한 API 경로
     private static final String[] WHITE_LIST = {
-            "/",
             "/auth/signup",
             "/auth/signin",
-            "/users/check/*",
-            "/posts/check/*"
     };
 
     private final JwtUtil jwtUtil;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest httpRequest, HttpServletResponse httpResponse, FilterChain chain) throws ServletException, IOException {
+    public void init(FilterConfig filterConfig) throws ServletException {
+        Filter.super.init(filterConfig);
+    }
+
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+        HttpServletRequest httpRequest = (HttpServletRequest) request;
+        HttpServletResponse httpResponse = (HttpServletResponse) response;
 
         String url = httpRequest.getRequestURI();
-
-        // 화이트리스트에 있는 경우 필터 통과
+        //화이트리스트에 있는 경우 필터 통과
         if (isWhiteList(url)) {
             chain.doFilter(httpRequest, httpResponse);
             return;
         }
 
+        System.out.println("화이트리스트가 아니라 통과 완료");
         String bearerJwt = httpRequest.getHeader("Authorization");
 
         if (bearerJwt == null) {
@@ -50,18 +52,21 @@ public class JwtFilter extends OncePerRequestFilter {
 
         String jwt = jwtUtil.substringToken(bearerJwt);
 
+        System.out.println("jwt : " + jwt);
+
         try {
             // JWT 유효성 검사와 claims 추출
+            System.out.println("클레임 추출 전");
             Claims claims = jwtUtil.extractClaims(jwt);
+            System.out.println("클레임 추출 완료 : " +claims);
             if (claims == null) {
                 httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "잘못된 JWT 토큰입니다.");
                 return;
             }
 
             httpRequest.setAttribute("userId", Long.parseLong(claims.getSubject()));
-            httpRequest.setAttribute("email", claims.get("email"));
 
-            chain.doFilter(httpRequest, httpResponse);
+            chain.doFilter(request, response);
         } catch (SecurityException | MalformedJwtException e) {
             log.error("Invalid JWT signature, 유효하지 않는 JWT 서명 입니다.", e);
             httpResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "유효하지 않는 JWT 서명입니다.");
@@ -77,6 +82,7 @@ public class JwtFilter extends OncePerRequestFilter {
         }
     }
 
+
     // 화이트 리스트에 포함된 경로인지 확인
     private boolean isWhiteList(String requestURI) {
         for (String pattern : WHITE_LIST) {
@@ -85,5 +91,10 @@ public class JwtFilter extends OncePerRequestFilter {
             }
         }
         return false;
+    }
+
+    @Override
+    public void destroy() {
+        Filter.super.destroy();
     }
 }

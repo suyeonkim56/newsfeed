@@ -33,11 +33,16 @@ public class CommentService {
         Post findPost = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalStateException("존재하지 않는 게시물입니다."));
         Comment savecomment = new Comment(requestDto.getContent(), findUser, findPost);
-
+        commentRepository.save(savecomment);
+        System.out.println("댓글 저장 완료");
         return new CommentCreateResponseDto(
                 savecomment.getId(),
                 savecomment.getContent(),
-                savecomment.getCreatedAt()
+                savecomment.getLikeCount(),
+                savecomment.getUpdatedAt(),
+                savecomment.getCreatedAt(),
+                savecomment.getUser().getId(),
+                savecomment.getPost().getId()
         );
     }
 
@@ -64,9 +69,6 @@ public class CommentService {
             throw new IllegalStateException("본인의 댓글만 수정할 수 있습니다.");
         }
 
-        if (findComment.getContent().equals(requestDto.getNewContent())) {
-            throw new IllegalStateException("기존과 동일한 내용으로 바꿀 수 없습니다.");
-        }
         findComment.updateContent(requestDto.getNewContent());
         return new CommentResponseDto(
                 findComment.getId(),

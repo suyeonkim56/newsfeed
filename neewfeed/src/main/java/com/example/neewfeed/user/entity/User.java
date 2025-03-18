@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Getter
 @Table(name = "users")
 @NoArgsConstructor
-public class User{
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long id;
@@ -49,8 +49,7 @@ public class User{
         this.updatedAt = LocalDateTime.now();
     }
 
-    public void updatePassword(String password)
-    {
+    public void updatePassword(String password) {
         this.password = password;
         this.updatedAt = LocalDateTime.now();
     }
