@@ -1,10 +1,8 @@
 package com.example.neewfeed.post.repository;
 
-import com.example.neewfeed.auth.dto.AuthUser;
 import com.example.neewfeed.post.entity.Post;
 import com.example.neewfeed.user.entity.User;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

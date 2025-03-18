@@ -1,15 +1,10 @@
 package com.example.neewfeed.user.service;
 
-import com.example.neewfeed.auth.dto.AuthUser;
-import com.example.neewfeed.auth.dto.UserSignUpRequestDto;
-import com.example.neewfeed.auth.dto.UserSignUpResponseDto;
 import com.example.neewfeed.common.config.PasswordEncoder;
 import com.example.neewfeed.user.dto.*;
 import com.example.neewfeed.user.entity.User;
 import com.example.neewfeed.user.repository.UserRepository;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,12 +18,12 @@ public class UserService {
 
     //유저 단독 조회
     @Transactional(readOnly = true)
-    public UserResponseDto findById(AuthUser user, Long userId) {
+    public UserResponseDto findById(Long loginUserId, Long userId) {
         User findUser = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalStateException("존재하지 않는 유저입니다."));
 
         //본인인 경우
-        if (user.getId().equals(findUser.getId())) {
+        if (loginUserId.equals(findUser.getId())) {
             return new UserPrivateResponseDto(
                     findUser.getId(),
                     findUser.getEmail(),
@@ -39,14 +34,14 @@ public class UserService {
         }
         //타인인 경우
         else {
-            return new UserPublicResponseDto(findUser.getId(), findUser.getEmail());
+            return new UserPublicResponseDto(findUser.getId(), findUser.getName());
         }
     }
 
     //유저 이름 변경
     @Transactional
-    public UserPrivateResponseDto updateName(AuthUser authUser, UserNameUpdateRequestDto requestDto) {
-        User findUser = userRepository.findById(authUser.getId())
+    public UserPrivateResponseDto updateName(Long loginUserId, UserNameUpdateRequestDto requestDto) {
+        User findUser = userRepository.findById(loginUserId)
                 .orElseThrow(() -> new IllegalStateException("존재하지 않는 유저입니다."));
 
         if (findUser.getName().equals(requestDto.getNewname())) {
@@ -65,8 +60,8 @@ public class UserService {
 
     //비밀번호 변경
     @Transactional
-    public void updatePassword(AuthUser authUser, UserPasswordUpdateRequestDto requestDto) {
-        User findUser = userRepository.findById(authUser.getId())
+    public void updatePassword(Long loginUserId, UserPasswordUpdateRequestDto requestDto) {
+        User findUser = userRepository.findById(loginUserId)
                 .orElseThrow(() -> new IllegalStateException("존재하지 않는 유저입니다."));
 
         if (passwordEncoder.matches(requestDto.getNewPassword(), findUser.getPassword())) {

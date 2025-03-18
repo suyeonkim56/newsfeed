@@ -1,6 +1,5 @@
 package com.example.neewfeed.post.service;
 
-import com.example.neewfeed.auth.dto.AuthUser;
 import com.example.neewfeed.follow.repository.FollowingRepository;
 import com.example.neewfeed.post.dto.PostCreateRequestDto;
 import com.example.neewfeed.post.dto.PostCreateResponseDto;
@@ -31,8 +30,8 @@ public class PostService {
 
     //게시물 생성
     @Transactional
-    public PostCreateResponseDto createPost(AuthUser authUser, PostCreateRequestDto requestDto) {
-        User findUser = userRepository.findByEmail(authUser.getEmail())
+    public PostCreateResponseDto createPost(Long userId, PostCreateRequestDto requestDto) {
+        User findUser = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalStateException("존재하지 않는 사용자입니다."));
         Post post = new Post(requestDto.getContents(), findUser);
         Post savedpost = postRepository.save(post);
@@ -46,7 +45,7 @@ public class PostService {
 
     //게시물 전체 조회
     @Transactional(readOnly = true)
-    public List<PostResponseDto> findFollowedPosts(AuthUser authUser, int page, int size) {
+    public List<PostResponseDto> findFollowedPosts(Long userId, int page, int size) {
         // 1. 페이지 인덱스 조정
         int adjustedPage = Math.max(page - 1, 0);
         PageRequest pageable = PageRequest.of(adjustedPage, size, Sort.by("createdAt").descending());
@@ -77,7 +76,7 @@ public class PostService {
 
     //수정일자 기준 정렬
     @Transactional(readOnly = true)
-    public List<PostResponseDto> findFollowedPostsOrderByUpdatedAt(AuthUser authUser, int page, int size) {
+    public List<PostResponseDto> findFollowedPostsOrderByUpdatedAt(Long userId, int page, int size) {
         // 1. 페이지 인덱스 조정
         int adjustedPage = Math.max(page - 1, 0);
         PageRequest pageable = PageRequest.of(adjustedPage, size, Sort.by("updatedAt").descending());
@@ -124,10 +123,10 @@ public class PostService {
 
     //게시물 수정
     @Transactional
-    public PostResponseDto updatePost(Long postId, AuthUser authUser, PostUpdateRequestDto requestDto) {
+    public PostResponseDto updatePost(Long postId, Long userId, PostUpdateRequestDto requestDto) {
         Post findpost = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalStateException("존재하지 않는 게시물입니다."));
-        User user = userRepository.findByEmail(authUser.getEmail())
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalStateException("존재하지 않는 유저입니다."));
 
         if (!findpost.getUser().equals(user)) {
@@ -143,10 +142,10 @@ public class PostService {
 
     //게시물 삭제
     @Transactional
-    public void deletePost(AuthUser authUser, Long postId) {
+    public void deletePost(Long userId, Long postId) {
         Post findpost = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalStateException("존재하지 않는 게시물입니다."));
-        User user = userRepository.findByEmail(authUser.getEmail())
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalStateException("존재하지 않는 유저입니다."));
 
         if (!findpost.getUser().equals(user)) {
@@ -155,7 +154,5 @@ public class PostService {
 
         postRepository.delete(findpost);
     }
-
-
 
 }

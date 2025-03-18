@@ -1,7 +1,6 @@
 package com.example.neewfeed.like.service;
 
 
-import com.example.neewfeed.auth.dto.AuthUser;
 import com.example.neewfeed.like.entity.PostLike;
 import com.example.neewfeed.like.repository.PostLikeRepository;
 import com.example.neewfeed.post.entity.Post;

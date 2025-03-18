@@ -48,7 +48,7 @@ public class AuthService {
         }
 
         // 비밀번호가 일치한 경우
-        String bearerJwt = jwtUtil.createToken(user.getId(), user.getEmail());
+        String bearerJwt = jwtUtil.createToken(user.getId());
         return new UserSigninResponseDto(bearerJwt);
     }
 }
