@@ -51,7 +51,7 @@ public class PostService {
         PageRequest pageable = PageRequest.of(adjustedPage, size, Sort.by("createdAt").descending());
 
         // 2. 팔로우 리스트 가져오기 + 본인 추가
-        List<User> followers = followingRepository.findbyfromId(authUser.getId());
+        List<User> followers = followingRepository.findByFromId(authUser.getId());
         User currentUser = userRepository.findById(authUser.getId())
                 .orElseThrow(() -> new IllegalStateException("존재하지 않는 사용자입니다."));
 
@@ -82,7 +82,7 @@ public class PostService {
         PageRequest pageable = PageRequest.of(adjustedPage, size, Sort.by("updatedAt").descending());
 
         // 2. 팔로우 리스트 가져오기 + 본인 추가
-        List<User> followers = followingRepository.findbyfromId(authUser.getId());
+        List<User> followers = followingRepository.findByFromId(authUser.getId());
         User currentUser = userRepository.findById(authUser.getId())
                 .orElseThrow(() -> new IllegalStateException("존재하지 않는 사용자입니다."));
 
@@ -106,6 +106,7 @@ public class PostService {
     }
 
     //게시물 기간별 조회
+    @Transactional(readOnly = true)
     public List<PostResponseDto> findOrderByDate(int page, int size, LocalDateTime startDate, LocalDateTime endDate) {
         Pageable pageable = PageRequest.of(page - 1, size);
         Page<Post> posts;

@@ -43,7 +43,7 @@ public class CommentService {
     //댓글 전체 조회
     @Transactional(readOnly = true)
     public List<CommentResponseDto> findAll() {
-        List<Comment> comments = commentRepository.findAllDesc();
+        List<Comment> comments = commentRepository.findAll();
         return comments.stream().map(comment -> new CommentResponseDto(
                 comment.getId(),
                 comment.getContent(),

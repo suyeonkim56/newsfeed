@@ -10,6 +10,4 @@ import java.util.Optional;
 
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Long> {
-    @Query("SELECT c FROM comment c ORDER BY c.id DESC")
-    List<Comment> findAllDesc();
 }

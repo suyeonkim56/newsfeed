@@ -9,6 +9,7 @@ import com.example.neewfeed.user.entity.User;
 import com.example.neewfeed.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +19,7 @@ public class PostLikeService {
     private final PostRepository postRepository;
 
 
+    @Transactional
     public void createPostLike(AuthUser authUser, Long postId) {
         User findUser = userRepository.findById(authUser.getId())
                 .orElseThrow(()->new IllegalStateException("존재하지 않는 유저입니다."));
@@ -28,7 +30,7 @@ public class PostLikeService {
             throw new IllegalStateException("본인의 게시물에 좋아요를 남길 수 없습니다.");
         }
 
-        if(postLikeRepository.exists(postLikeRepository.findByUserAndPost(findUser,findPost)))
+        if(postLikeRepository.findByUserAndPost(findUser,findPost).isPresent())
         {
             throw new IllegalStateException("이미 좋아요가 생성되어 있습니다.");
         }
@@ -39,6 +41,7 @@ public class PostLikeService {
         findPost.addLike();
     }
 
+    @Transactional
     public void deletePostLike(AuthUser authUser, Long postId, Long likeId) {
         User findUser = userRepository.findById(authUser.getId())
                 .orElseThrow(()->new IllegalStateException("존재하지 않는 유저입니다."));

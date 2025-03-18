@@ -9,5 +9,5 @@ import java.util.List;
 
 @Repository
 public interface FollowingRepository extends JpaRepository<Following, Long> {
-    List<User> findbyfromId(Long id);
+    List<User> findByFromId(Long id);
 }
