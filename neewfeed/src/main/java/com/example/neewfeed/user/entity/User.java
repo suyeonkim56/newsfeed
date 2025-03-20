@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     @Column(name = "email", nullable = false, unique = true, length = 50)
@@ -26,14 +26,10 @@ public class User {
     @Column(name = "password", nullable = false)
     String password;
 
-    @CreatedDate
     @Column(name = "createdAt", updatable = false)
-    @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
 
-    @LastModifiedDate
     @Column(name = "updatedAt")
-    @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime updatedAt;
 
     public User(String email, String name, String password) {

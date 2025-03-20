@@ -5,8 +5,10 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 public class UserSignUpRequestDto {
     @NotBlank(message = "이름은 필수 입력 값입니다.")
     @Size(min = 2, max =  18, message = "이름을 2~18자 이내로 작성해주세요.")

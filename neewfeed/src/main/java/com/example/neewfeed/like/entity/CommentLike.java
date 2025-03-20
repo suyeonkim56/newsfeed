@@ -15,12 +15,10 @@ import java.time.LocalDateTime;
 @Getter
 public class CommentLike {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @CreatedDate
     @Column(updatable = false)
-    @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)

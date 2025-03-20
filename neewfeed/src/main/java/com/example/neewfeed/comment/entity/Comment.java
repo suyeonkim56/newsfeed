@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 public class Comment {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
     @Column(name = "content")
@@ -28,14 +28,10 @@ public class Comment {
     @Column(name = "like_count")
     int likeCount;
 
-    @CreatedDate
-    @Column(updatable = false)
-    @Temporal(TemporalType.TIMESTAMP)
+    @Column
     private LocalDateTime createdAt;
 
-    @LastModifiedDate
     @Column
-    @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime updatedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)

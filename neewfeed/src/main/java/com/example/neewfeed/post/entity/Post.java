@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Table(name = "post")
 public class Post {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "content", nullable = false, length = 200)
@@ -29,14 +29,10 @@ public class Post {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @CreatedDate
     @Column(updatable = false)
-    @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
 
-    @LastModifiedDate
     @Column
-    @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime updatedAt;
 
     public Post(String contents, User user) {

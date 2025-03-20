@@ -16,12 +16,10 @@ import java.time.LocalDateTime;
 @Table(name = "post_like")
 public class PostLike {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    @CreatedDate
     @Column(updatable = false)
-    @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
