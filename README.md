@@ -1,8 +1,10 @@
 # newsfeed
 
 ### API
+https://www.notion.so/teamsparta/1b22dc3ef51480a4a0d9ff98a9bb6be4?v=a84f8637c23645c295f84c8c1009fb64&pvs=4
 
 ### ERD
+![뉴스피드 개인 프로젝트](https://github.com/user-attachments/assets/632b49b5-3e96-4a63-b17b-d5dc2cf3e6f4)
 
 ---
 ### API 동작 캡쳐본
@@ -81,6 +83,9 @@
 
 
 
+### TestCode 커버리지
+전체 라인 커버리지 51%
+![image](https://github.com/user-attachments/assets/13bbe54e-9189-4697-94e3-d79d3acae1fd)
 
 
 
