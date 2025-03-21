@@ -33,7 +33,6 @@ public class AuthServiceTest {
     @InjectMocks
     private AuthService authService;
 
-
     @Spy
     private PasswordEncoder passwordEncoder;
 

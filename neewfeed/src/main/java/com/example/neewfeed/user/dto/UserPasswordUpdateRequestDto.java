@@ -2,8 +2,10 @@ package com.example.neewfeed.user.dto;
 
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 public class UserPasswordUpdateRequestDto {
     private String oldPassword;
     @Pattern(regexp="(?=.*[0-9])(?=.*[a-zA-Z])(?=.*\\W)(?=\\S+$).{8,20}",
