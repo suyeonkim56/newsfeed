@@ -1,5 +1,9 @@
 # newsfeed
 
+### 프로젝트 요약
+SNS의 뉴스피드를 구현하는 프로젝트
+회원가입, 로그인, 게시물, 댓글 기능이 있습니다.
+
 ### API
 https://www.notion.so/teamsparta/1b22dc3ef51480a4a0d9ff98a9bb6be4?v=a84f8637c23645c295f84c8c1009fb64&pvs=4
 
